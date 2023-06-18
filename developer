@@ -1,1 +1,712 @@
-Teewurst
+// modules are defined as an array
+// [ module function, map of requires ]
+//
+// map of requires is short require name -> numeric require
+//
+// anything defined in a previous bundle is accessed via the
+// orig method which is the require for previous bundles
+parcelRequire = (function (modules, cache, entry, globalName) {
+  // Save the require from previous bundle to this closure if any
+  var previousRequire = typeof parcelRequire === 'function' && parcelRequire;
+  var nodeRequire = typeof require === 'function' && require;
+
+  function newRequire(name, jumped) {
+    if (!cache[name]) {
+      if (!modules[name]) {
+        // if we cannot find the module within our internal map or
+        // cache jump to the current global require ie. the last bundle
+        // that was added to the page.
+        var currentRequire = typeof parcelRequire === 'function' && parcelRequire;
+        if (!jumped && currentRequire) {
+          return currentRequire(name, true);
+        }
+
+        // If there are other bundles on this page the require from the
+        // previous one is saved to 'previousRequire'. Repeat this as
+        // many times as there are bundles until the module is found or
+        // we exhaust the require chain.
+        if (previousRequire) {
+          return previousRequire(name, true);
+        }
+
+        // Try the node require function if it exists.
+        if (nodeRequire && typeof name === 'string') {
+          return nodeRequire(name);
+        }
+
+        var err = new Error('Cannot find module \'' + name + '\'');
+        err.code = 'MODULE_NOT_FOUND';
+        throw err;
+      }
+
+      localRequire.resolve = resolve;
+      localRequire.cache = {};
+
+      var module = cache[name] = new newRequire.Module(name);
+
+      modules[name][0].call(module.exports, localRequire, module, module.exports, this);
+    }
+
+    return cache[name].exports;
+
+    function localRequire(x){
+      return newRequire(localRequire.resolve(x));
+    }
+
+    function resolve(x){
+      return modules[name][1][x] || x;
+    }
+  }
+
+  function Module(moduleName) {
+    this.id = moduleName;
+    this.bundle = newRequire;
+    this.exports = {};
+  }
+
+  newRequire.isParcelRequire = true;
+  newRequire.Module = Module;
+  newRequire.modules = modules;
+  newRequire.cache = cache;
+  newRequire.parent = previousRequire;
+  newRequire.register = function (id, exports) {
+    modules[id] = [function (require, module) {
+      module.exports = exports;
+    }, {}];
+  };
+
+  var error;
+  for (var i = 0; i < entry.length; i++) {
+    try {
+      newRequire(entry[i]);
+    } catch (e) {
+      // Save first error but execute all entries
+      if (!error) {
+        error = e;
+      }
+    }
+  }
+
+  if (entry.length) {
+    // Expose entry point to Node, AMD or browser globals
+    // Based on https://github.com/ForbesLindesay/umd/blob/master/template.js
+    var mainExports = newRequire(entry[entry.length - 1]);
+
+    // CommonJS
+    if (typeof exports === "object" && typeof module !== "undefined") {
+      module.exports = mainExports;
+
+    // RequireJS
+    } else if (typeof define === "function" && define.amd) {
+     define(function () {
+       return mainExports;
+     });
+
+    // <script>
+    } else if (globalName) {
+      this[globalName] = mainExports;
+    }
+  }
+
+  // Override the current require with this new one
+  parcelRequire = newRequire;
+
+  if (error) {
+    // throw error from earlier, _after updating parcelRequire_
+    throw error;
+  }
+
+  return newRequire;
+})({"developer/declaration.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.svgIcons = exports.sourceFiles = exports.saveEditor = exports.progressCircle = exports.nameFolder = exports.lineNumbers = exports.folderPath = exports.fileText = exports.fileSVG = exports.fileOpen = exports.fileField = exports.editorFile = exports.editorCode = exports.editor = exports.developerFields = exports.developerField = exports.deleteFile = exports.closeEditor = exports.arrowBack = void 0;
+let developerFields = document.getElementById('Developer-Fields');
+exports.developerFields = developerFields;
+let developerField = document.getElementsByClassName('Developer-Field');
+exports.developerField = developerField;
+let sourceFiles = document.getElementById('Source-Files');
+exports.sourceFiles = sourceFiles;
+let fileField = document.getElementsByClassName('File-Field');
+exports.fileField = fileField;
+let fileSVG = document.getElementsByClassName('File-SVG');
+exports.fileSVG = fileSVG;
+let fileText = document.getElementsByClassName('File-Text');
+exports.fileText = fileText;
+let svgIcons = document.getElementsByClassName('SVG-Icons');
+exports.svgIcons = svgIcons;
+let deleteFile = document.getElementsByClassName('File-Delete');
+exports.deleteFile = deleteFile;
+let arrowBack = document.getElementsByClassName('Arrow-Back');
+exports.arrowBack = arrowBack;
+let folderPath = document.getElementsByClassName('Folder-Path');
+exports.folderPath = folderPath;
+let nameFolder = document.getElementsByClassName('Folder-Name');
+exports.nameFolder = nameFolder;
+let progressCircle = document.getElementById('Progress-Circle');
+exports.progressCircle = progressCircle;
+let fileOpen = document.getElementsByClassName('File-Open');
+
+//Editor
+exports.fileOpen = fileOpen;
+let editor = document.getElementById('Editor');
+exports.editor = editor;
+let closeEditor = document.getElementsByClassName('Close-Editor');
+exports.closeEditor = closeEditor;
+let saveEditor = document.getElementsByClassName('Save-Editor');
+exports.saveEditor = saveEditor;
+let lineNumbers = document.getElementsByClassName('Line-Numbers');
+exports.lineNumbers = lineNumbers;
+let editorCode = document.getElementsByClassName('Editor-Code');
+exports.editorCode = editorCode;
+let editorFile = document.getElementsByClassName('Editor-File');
+exports.editorFile = editorFile;
+},{}],"developer/editor.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.openEditor = openEditor;
+exports.sendSigns = void 0;
+var MAIN = _interopRequireWildcard(require("../script_developer.js"));
+var _communication = require("./communication.js");
+var DECL = _interopRequireWildcard(require("./declaration.js"));
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+let sendSigns = 1000;
+exports.sendSigns = sendSigns;
+let stopEditor = () => {
+  DECL.editor.style.display = 'none';
+  DECL.sourceFiles.style.display = 'block';
+  _communication.iMessage.filePath = DECL.nameFolder[0].innerHTML;
+  _communication.iMessage.Job = 'Directory';
+  (0, _communication.sendMessage)(_communication.iMessage);
+  DECL.editorCode[0].value = "";
+};
+DECL.closeEditor[0].onmousedown = stopEditor;
+DECL.saveEditor[0].onmousedown = saveFileEditor;
+function openEditor(fileId) {
+  MAIN.turnProgressCircle(360, 1);
+  DECL.sourceFiles.style.display = 'none';
+  getFileFromServer();
+}
+function saveFileEditor() {
+  let firstSign = 0;
+  let lastSign = sendSigns;
+  _communication.iMessage.Job = 'SetEditor';
+  _communication.iMessage.fileName = MAIN.filePath;
+  _communication.iMessage.firstSign = firstSign;
+  _communication.iMessage.lastSign = lastSign;
+  _communication.iMessage.fileText = DECL.editorCode[0].value.slice(firstSign, lastSign).toString();
+  console.log(DECL.editorCode[0].value.length);
+  (0, _communication.sendMessage)(_communication.iMessage);
+}
+function getFileFromServer() {
+  _communication.iMessage.Job = 'GetFile';
+  _communication.iMessage.fileName = MAIN.fileName;
+  _communication.iMessage.filePath = MAIN.filePath;
+  _communication.iMessage.startSign = 0;
+  (0, _communication.sendMessage)(_communication.iMessage);
+}
+
+//===========================================================================================
+//=====================Function WAIT=========================================================
+function wait(ms) {
+  var start = new Date().getTime();
+  var end = start;
+  while (end < start + ms) {
+    end = new Date().getTime();
+  }
+}
+},{"../script_developer.js":"script_developer.js","./communication.js":"developer/communication.js","./declaration.js":"developer/declaration.js"}],"developer/communication.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.online = exports.iMessage = void 0;
+exports.sendMessage = sendMessage;
+var _script_developer = require("../script_developer.js");
+var DECL = _interopRequireWildcard(require("./declaration.js"));
+var _editor = require("./editor.js");
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+let iMessage = {
+  Header: 'Developer',
+  Job: 'Directory',
+  //Job
+  filePath: '',
+  //FilePath
+  fileName: '',
+  //File Name
+  fileText: '',
+  //File Text
+  startSign: ''
+};
+
+//==========================================================================
+//=======================INIT Websocket======================================
+exports.iMessage = iMessage;
+let online = false;
+exports.online = online;
+var gateway = `ws://${window.location.hostname}/ws`;
+var websocket;
+let receiveWS;
+let stringSource = "";
+let stringSignCounter = 0;
+let directory = [10];
+let directoryPath;
+window.addEventListener('load', onLoad);
+var gateway = `ws://${window.location.hostname}/ws`;
+function initWebSocket() {
+  console.log('Trying to open a WebSocket connection...');
+  websocket = new WebSocket(gateway);
+  websocket.onopen = onOpen;
+  websocket.onclose = onClose;
+  websocket.onmessage = onMessage;
+}
+function onOpen(event) {
+  console.log('Connection opened');
+  exports.online = online = true;
+}
+function onClose(event) {
+  console.log('Connection closed');
+  setTimeout(initWebSocket, 2000);
+  exports.online = online = false;
+}
+function onMessage(event) {
+  let stringData = event.data;
+  receiveWS = JSON.parse(stringData);
+  if (receiveWS["Type"] == "Directory") {
+    directoryPath = receiveWS["Path"];
+    (0, _script_developer.addPath)(directoryPath);
+    for (let index = 1; index <= 10; index++) {
+      let string = "Directory" + index;
+      if (receiveWS[string].charAt(0) == '/' && receiveWS[string] != '/System Volume Information') {
+        directory[index - 1] = receiveWS[string];
+        (0, _script_developer.addFile)(directory[index - 1]);
+      }
+    }
+  }
+  if (receiveWS["Type"] == "Editor") {
+    stringSource = receiveWS["Content"];
+    stringSignCounter += stringSource.length;
+    DECL.editorCode[0].value += stringSource.toString();
+    iMessage.Job = 'GetFile';
+    iMessage.filePath = receiveWS["Path"];
+    iMessage.startSign = stringSignCounter.toString();
+    if (stringSource.length != 0) {
+      sendMessage(iMessage);
+    } else {
+      stringSignCounter = 0;
+      stringSource = "";
+      DECL.editor.style.display = 'block';
+    }
+  }
+  if (receiveWS["Type"] == "SetEditor") {
+    let firstSign = parseInt(receiveWS["firstSign"]);
+    let lastSign = parseInt(receiveWS["lastSign"]);
+    if (lastSign >= DECL.editorCode[0].value.length) {
+      iMessage.Job = '';
+      console.log('Finish Send File');
+    } else {
+      iMessage.Job = 'SetEditor';
+    }
+    firstSign += _editor.sendSigns;
+    lastSign += _editor.sendSigns;
+    iMessage.fileText = DECL.editorCode[0].value.slice(firstSign, lastSign).toString();
+    iMessage.firstSign = firstSign.toString();
+    iMessage.lastSign = lastSign.toString();
+    iMessage.filePath = receiveWS["Path"];
+    console.log((firstSign / parseInt(DECL.editorCode[0].value.length) * 100).toFixed(0) + ' %');
+    sendMessage(iMessage);
+  }
+}
+function onLoad(event) {
+  initWebSocket();
+}
+function sendMessage(message) {
+  if (online == true) {
+    let stringMessage = JSON.stringify(message);
+    websocket.send(stringMessage);
+  }
+}
+
+//===========================================================================================
+//=====================Function WAIT=========================================================
+function wait(ms) {
+  var start = new Date().getTime();
+  var end = start;
+  while (end < start + ms) {
+    end = new Date().getTime();
+  }
+}
+},{"../script_developer.js":"script_developer.js","./declaration.js":"developer/declaration.js","./editor.js":"developer/editor.js"}],"script_developer.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.addFile = addFile;
+exports.addPath = addPath;
+exports.fileText = exports.filePath = exports.fileName = void 0;
+exports.turnProgressCircle = turnProgressCircle;
+var _communication = require("./developer/communication.js");
+var DECL = _interopRequireWildcard(require("./developer/declaration.js"));
+var _editor = require("./developer/editor.js");
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+let numberDevFields = 3;
+let stringNumbers = 0;
+let numberMaxFiles = 14;
+let fileName = '0';
+exports.fileName = fileName;
+let fileText, filePath, fileId, dragItem;
+exports.filePath = filePath;
+exports.fileText = fileText;
+let progressCounter = 0;
+DECL.developerField[0].onmousedown = showSource;
+DECL.arrowBack[0].onmousedown = backFile;
+for (let index = 0; index < numberMaxFiles; index++) {
+  DECL.deleteFile[index].onmousedown = removeFile;
+  DECL.fileOpen[index].onmousedown = showFile;
+}
+for (let index = 1; index < 1000; index++) {
+  DECL.lineNumbers[0].innerHTML = DECL.lineNumbers[0].innerHTML + index + '<br>';
+}
+
+//Drag and Drop
+function dragStart(event) {
+  dragItem.style.position = 'relativ';
+}
+let dragEnd = () => {
+  dragItem = null;
+};
+function dragOver(e) {
+  e.preventDefault();
+  this.style.border = '1vh solid cyan';
+}
+let dragEnter = e => {
+  e.preventDefault();
+};
+DECL.progressCircle.ondragstart = dragStart;
+DECL.progressCircle.ondragend = dragEnd;
+DECL.sourceFiles.ondragover = dragOver;
+DECL.sourceFiles.ondragenter = dragEnter;
+DECL.sourceFiles.ondragleave = dragLeave;
+DECL.sourceFiles.ondrop = onDrop;
+function dragLeave() {
+  this.style.border = 'solid 1vh grey';
+  this.style.borderStyle = 'dashed';
+}
+function onDrop(e) {
+  // don't replace document
+  e.preventDefault();
+  e.stopPropagation();
+  this.style.border = 'solid 1vh grey';
+  this.style.borderStyle = 'dashed';
+  var file = e.dataTransfer.files[0];
+  let reader = new FileReader();
+  reader.readAsText(file);
+  reader.onload = function () {
+    exports.fileName = fileName = file.name.toString();
+    exports.fileText = fileText = reader.result.toString();
+    _communication.iMessage.Job = 'AddFile';
+    _communication.iMessage.fileName = file.name.toString();
+    _communication.iMessage.fileText = reader.result.toString();
+    (0, _communication.sendMessage)(_communication.iMessage);
+    addFile(fileName);
+  };
+
+  //turnProgressCircle
+  turnProgressCircle(360, 2);
+}
+function showFile(event) {
+  for (let index = 0; index < numberMaxFiles; index++) {
+    DECL.fileField[index].style.display = 'none';
+  }
+  exports.fileName = fileName = event.target.getAttribute('name');
+  if (fileName != undefined) {
+    fileId = fileName.length == 2 ? fileName.charAt(1) : fileName.charAt(1) + fileName.charAt(2);
+    if (DECL.nameFolder[0].innerHTML != '/') {
+      exports.filePath = filePath = DECL.nameFolder[0].innerHTML + '/' + DECL.fileText[fileId].innerHTML;
+    } else {
+      exports.filePath = filePath = DECL.nameFolder[0].innerHTML + DECL.fileText[fileId].innerHTML;
+    }
+    let editor = DECL.fileText[fileId].innerHTML.indexOf('.');
+    if (editor != -1) {
+      DECL.editorCode[0].textContent = "";
+      DECL.editorFile[0].innerHTML = DECL.fileText[fileId].innerHTML;
+      (0, _editor.openEditor)(fileId);
+    } else {
+      _communication.iMessage.Job = 'Directory';
+      _communication.iMessage.filePath = filePath;
+      (0, _communication.sendMessage)(_communication.iMessage);
+    }
+  }
+}
+function showSource(event) {
+  for (let index = 0; index < numberMaxFiles; index++) {
+    DECL.fileField[index].style.display = 'none';
+  }
+  DECL.developerFields.style.display = 'none';
+  DECL.sourceFiles.style.display = 'block';
+  DECL.folderPath[0].style.display = 'block';
+  _communication.iMessage.Job = 'Directory';
+  _communication.iMessage.filePath = '/';
+  exports.filePath = filePath = '/';
+  (0, _communication.sendMessage)(_communication.iMessage);
+}
+function removeFile(event) {
+  exports.fileName = fileName = event.target.getAttribute('name');
+  fileId = fileName.length == 2 ? fileName.charAt(1) : fileName.charAt(1) + fileName.charAt(2);
+  DECL.fileField[fileId].style.display = 'none';
+}
+function backFile() {
+  if (filePath == '/') {
+    DECL.developerFields.style.display = 'block';
+    DECL.sourceFiles.style.display = 'none';
+  } else {
+    for (let index = 0; index < numberMaxFiles; index++) {
+      DECL.fileField[index].style.display = 'none';
+    }
+    exports.filePath = filePath = DECL.nameFolder[0].innerHTML;
+    for (let index = filePath.length - 1; index >= 0; index--) {
+      if (filePath.charAt(index) == '/') {
+        if (index == 0) {
+          DECL.nameFolder[0].innerHTML = filePath.slice(0, index + 1);
+        } else {
+          DECL.nameFolder[0].innerHTML = filePath.slice(0, index);
+        }
+        exports.filePath = filePath = DECL.nameFolder[0].innerHTML;
+        _communication.iMessage.Job = 'Directory';
+        _communication.iMessage.filePath = filePath;
+        (0, _communication.sendMessage)(_communication.iMessage);
+        index = -1;
+      }
+    }
+  }
+
+  //Refresh Directory 
+}
+
+function addFile(fileName) {
+  let fileFormat;
+  fileFormat = getFileFormat(fileName);
+  let i = 0;
+  for (let index = 0; index < numberMaxFiles; index++) {
+    if (DECL.fileField[index].style.display == 'block') {
+      i++;
+    }
+  }
+  DECL.fileField[i].style.display = 'block';
+  for (let index = fileName.length - 1; index >= 0; index--) {
+    if (fileName.charAt(index) == '/') {
+      fileName = fileName.slice(index + 1, fileName.length);
+    }
+  }
+  DECL.fileText[i].innerHTML = fileName;
+  let svgType = document.getElementById(fileFormat);
+  DECL.fileSVG[i].innerHTML = svgType.innerHTML;
+}
+function addPath(path) {
+  if (path == '/') {
+    DECL.nameFolder[0].innerHTML = path;
+  } else {
+    DECL.nameFolder[0].innerHTML = path;
+  }
+}
+function getFileFormat(fileName) {
+  let fileType;
+  for (let index = fileName.length - 1; index >= 0; index--) {
+    if (fileName.charAt(index) == '.') {
+      fileType = fileName.slice(index + 1, fileName.length);
+      fileType = fileType.toLowerCase();
+      index = 0;
+    }
+  }
+  if (fileType == null) {
+    fileType = 'folder';
+  }
+  return fileType;
+}
+function turnProgressCircle(degree, seconds) {
+  progressCounter++;
+  DECL.progressCircle.style.transitionDuration = seconds + 's';
+  DECL.progressCircle.style.transform = 'rotate(' + degree * progressCounter + 'deg)';
+}
+},{"./developer/communication.js":"developer/communication.js","./developer/declaration.js":"developer/declaration.js","./developer/editor.js":"developer/editor.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+var global = arguments[3];
+var OVERLAY_ID = '__parcel__error__overlay__';
+var OldModule = module.bundle.Module;
+function Module(moduleName) {
+  OldModule.call(this, moduleName);
+  this.hot = {
+    data: module.bundle.hotData,
+    _acceptCallbacks: [],
+    _disposeCallbacks: [],
+    accept: function (fn) {
+      this._acceptCallbacks.push(fn || function () {});
+    },
+    dispose: function (fn) {
+      this._disposeCallbacks.push(fn);
+    }
+  };
+  module.bundle.hotData = null;
+}
+module.bundle.Module = Module;
+var checkedAssets, assetsToAccept;
+var parent = module.bundle.parent;
+if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
+  var hostname = "" || location.hostname;
+  var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50110" + '/');
+  ws.onmessage = function (event) {
+    checkedAssets = {};
+    assetsToAccept = [];
+    var data = JSON.parse(event.data);
+    if (data.type === 'update') {
+      var handled = false;
+      data.assets.forEach(function (asset) {
+        if (!asset.isNew) {
+          var didAccept = hmrAcceptCheck(global.parcelRequire, asset.id);
+          if (didAccept) {
+            handled = true;
+          }
+        }
+      });
+
+      // Enable HMR for CSS by default.
+      handled = handled || data.assets.every(function (asset) {
+        return asset.type === 'css' && asset.generated.js;
+      });
+      if (handled) {
+        console.clear();
+        data.assets.forEach(function (asset) {
+          hmrApply(global.parcelRequire, asset);
+        });
+        assetsToAccept.forEach(function (v) {
+          hmrAcceptRun(v[0], v[1]);
+        });
+      } else if (location.reload) {
+        // `location` global exists in a web worker context but lacks `.reload()` function.
+        location.reload();
+      }
+    }
+    if (data.type === 'reload') {
+      ws.close();
+      ws.onclose = function () {
+        location.reload();
+      };
+    }
+    if (data.type === 'error-resolved') {
+      console.log('[parcel] ✨ Error resolved');
+      removeErrorOverlay();
+    }
+    if (data.type === 'error') {
+      console.error('[parcel] 🚨  ' + data.error.message + '\n' + data.error.stack);
+      removeErrorOverlay();
+      var overlay = createErrorOverlay(data);
+      document.body.appendChild(overlay);
+    }
+  };
+}
+function removeErrorOverlay() {
+  var overlay = document.getElementById(OVERLAY_ID);
+  if (overlay) {
+    overlay.remove();
+  }
+}
+function createErrorOverlay(data) {
+  var overlay = document.createElement('div');
+  overlay.id = OVERLAY_ID;
+
+  // html encode message and stack trace
+  var message = document.createElement('div');
+  var stackTrace = document.createElement('pre');
+  message.innerText = data.error.message;
+  stackTrace.innerText = data.error.stack;
+  overlay.innerHTML = '<div style="background: black; font-size: 16px; color: white; position: fixed; height: 100%; width: 100%; top: 0px; left: 0px; padding: 30px; opacity: 0.85; font-family: Menlo, Consolas, monospace; z-index: 9999;">' + '<span style="background: red; padding: 2px 4px; border-radius: 2px;">ERROR</span>' + '<span style="top: 2px; margin-left: 5px; position: relative;">🚨</span>' + '<div style="font-size: 18px; font-weight: bold; margin-top: 20px;">' + message.innerHTML + '</div>' + '<pre>' + stackTrace.innerHTML + '</pre>' + '</div>';
+  return overlay;
+}
+function getParents(bundle, id) {
+  var modules = bundle.modules;
+  if (!modules) {
+    return [];
+  }
+  var parents = [];
+  var k, d, dep;
+  for (k in modules) {
+    for (d in modules[k][1]) {
+      dep = modules[k][1][d];
+      if (dep === id || Array.isArray(dep) && dep[dep.length - 1] === id) {
+        parents.push(k);
+      }
+    }
+  }
+  if (bundle.parent) {
+    parents = parents.concat(getParents(bundle.parent, id));
+  }
+  return parents;
+}
+function hmrApply(bundle, asset) {
+  var modules = bundle.modules;
+  if (!modules) {
+    return;
+  }
+  if (modules[asset.id] || !bundle.parent) {
+    var fn = new Function('require', 'module', 'exports', asset.generated.js);
+    asset.isNew = !modules[asset.id];
+    modules[asset.id] = [fn, asset.deps];
+  } else if (bundle.parent) {
+    hmrApply(bundle.parent, asset);
+  }
+}
+function hmrAcceptCheck(bundle, id) {
+  var modules = bundle.modules;
+  if (!modules) {
+    return;
+  }
+  if (!modules[id] && bundle.parent) {
+    return hmrAcceptCheck(bundle.parent, id);
+  }
+  if (checkedAssets[id]) {
+    return;
+  }
+  checkedAssets[id] = true;
+  var cached = bundle.cache[id];
+  assetsToAccept.push([bundle, id]);
+  if (cached && cached.hot && cached.hot._acceptCallbacks.length) {
+    return true;
+  }
+  return getParents(global.parcelRequire, id).some(function (id) {
+    return hmrAcceptCheck(global.parcelRequire, id);
+  });
+}
+function hmrAcceptRun(bundle, id) {
+  var cached = bundle.cache[id];
+  bundle.hotData = {};
+  if (cached) {
+    cached.hot.data = bundle.hotData;
+  }
+  if (cached && cached.hot && cached.hot._disposeCallbacks.length) {
+    cached.hot._disposeCallbacks.forEach(function (cb) {
+      cb(bundle.hotData);
+    });
+  }
+  delete bundle.cache[id];
+  bundle(id);
+  cached = bundle.cache[id];
+  if (cached && cached.hot && cached.hot._acceptCallbacks.length) {
+    cached.hot._acceptCallbacks.forEach(function (cb) {
+      cb();
+    });
+    return true;
+  }
+}
+},{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","script_developer.js"], null)
+//# sourceMappingURL=/script_developer.js.map
