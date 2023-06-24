@@ -1,4 +1,4 @@
-// modules are defined as an array
+// modules are defined as an array//hh
 // [ module function, map of requires ]
 //
 // map of requires is short require name -> numeric require
