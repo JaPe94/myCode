@@ -602,7 +602,7 @@ function init() {
         alpha: true
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    //renderer.xr.enabled = true;
+    renderer.xr.enabled = true;
     container.appendChild(renderer.domElement);
     // AR-Button wird durch unseren eigenen Button ersetzt
     document.body.appendChild((0, _arbuttonJs.ARButton).createButton(renderer, {
