@@ -589,7 +589,7 @@ arButton.ontouchstart = function(event) {
     init();
 };
 function init() {
-    alert("hey");
+    alert("hey1");
     const container = document.createElement("div");
     document.body.appendChild(container);
     // Szene
